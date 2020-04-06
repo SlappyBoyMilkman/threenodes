@@ -31,6 +31,8 @@ class Input extends React.Component{
     let output = Library.getOutput(id)
     if( output && output.type === this.state.input.type ){
       this.state.input.connect( output )
+    }else if( this.state.input.type === "mixed" ){
+      this.state.input.connectMixed( output )
     }
   }
 
@@ -51,7 +53,7 @@ class Input extends React.Component{
     if( this.state.mouseOver ){
       return(
         <div className = "output__hover">
-        {this.state.input.type}
+        {this.state.input.type} { this.state.input.label }
         </div>
       )
     }
@@ -62,10 +64,15 @@ class Input extends React.Component{
     this.state.input.disconnect()
   }
 
+  getClassName(){
+    let className = this.state.input.type === "mixed" ? "node__input node__input--mixed" : "node__input";
+    return className;
+  }
+
   render(){
     return(
       <div
-      className = "node__input"
+      className = { this.getClassName() }
       ref = "input"
       draggable = "true"
       style = { this.getStyle() }

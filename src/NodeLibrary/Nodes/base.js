@@ -2,6 +2,8 @@ import Library from "../library"
 import Input from "../Input/input.js"
 import Output from "../Output/output.js"
 
+const MakeId = require( "../../util/makeId" );
+
 class NodeBase{
   constructor( settings ){
     this.getParameters( settings )
@@ -12,28 +14,97 @@ class NodeBase{
   }
 
   addListener( name, callback ){
-    this.listeners[name] === undefined ? this.listeners[name] = [ callback ]: this.listeners[name].push( callback );
+    let id = MakeId.generateHash();
+    if( !this.listeners[name] ){
+      this.listeners[name] = {};
+    }
+    this.listeners[name][id] = callback;
+    return id;
+  }
+
+  hasValues(  ){
+    let hasValues = true
+    for( var i = 0; i < this.inputs.length; i++ ){
+      let input = this.inputs[i];
+      if( input.value === undefined ){
+        hasValues = false;
+      }
+    }
+    return hasValues
   }
 
   bindComponent( component ){
     this.component = component;
   }
 
+  removeListener( name, id ){
+    if( this.listeners[name] && this.listeners[name][id] ){
+      delete this.listeners[name][id]
+    }
+  }
+
+  setup(){
+    if( this.__setup ){
+      this.addListener( "setup", this.__setup.bind( this ) )
+    }
+
+    if( this.__animate ){
+      this.addListener( "animate", this.__animate.bind( this ) )
+    }
+
+    if( this.__compile ){
+      this.addListener( "compile", this.__compile.bind( this ) )
+    }
+
+    Object.values(this.listeners["setup"]).forEach(
+      ( callback ) => {
+        callback();
+      }
+    );
+  }
+
   update(){
+    Object.values(this.listeners["compile"]).forEach(
+      ( callback ) => {
+        callback();
+      }
+    );
     if( this.listeners["update"] ){
-      this.listeners["update"].forEach(
+      Object.values(this.listeners["update"]).forEach(
         ( callback ) => {
           callback();
         }
       );
     }
+    if( this.component && !this.component.node ){
+      this.component.setState({ node: this })
+    }
+    let nodes = this.updateConnectedNodes();
+  }
 
-    this.component.setState({ node: this })
+  getConnectedNodes(){
+    let list = [];
+    this.outputs.forEach(
+      ( output ) => {
+        output.getConnectedNodes( list )
+      }
+    );
+
+    return list;
+  }
+
+  updateConnectedNodes(){
+    let list = this.getConnectedNodes();
+    list.forEach(
+      ( node ) => {
+        node.update();
+      }
+    )
   }
 
   updateCoords(){
     if( this.listeners["updateCoords"] ){
-      this.listeners["updateCoords"].forEach(
+      Object.values(this.listeners["updateCoords"]).forEach(
         ( callback ) => {
           callback();
         }
@@ -60,6 +131,7 @@ class NodeBase{
 
   getParameters( settings ){
     let entries = Object.entries( settings )
+    this.type = this.constructor.name;
     entries.forEach(
       ( entry, index ) => {
         this[ entry[0] ] = entry[1]
@@ -67,8 +139,8 @@ class NodeBase{
     );
   }
 
-  createInput( type, name, _default ){
-    let input = new Input( type, name, _default, this );
+  createInput( type, name, _default, hidden ){
+    let input = new Input( type, name, _default, this, hidden );
     this.inputs.push( input )
   }
 

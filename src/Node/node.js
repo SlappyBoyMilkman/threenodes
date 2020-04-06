@@ -11,15 +11,21 @@ class Node extends React.Component{
     this.state = {
       node: props.node,
       x: props.node.x,
-      y: props.node.y
+      y: props.node.y,
+      selected: props.selected
     }
     this.state.node.bindComponent( this )
   }
 
   componentWillReceiveProps( props ){
     this.setState({
-      node: props.node
+      node: props.node,
+      selected: props.selected
     })
+  }
+
+  componentDidMount(){
+    this.state.node.update()
   }
 
   getStyle(){
@@ -29,16 +35,24 @@ class Node extends React.Component{
     })
   }
 
+  getClassName(){
+    let className = this.state.selected === this.state.node ? "node node--selected": "node";
+    return className
+  }
+
+
   mapInputs(){
     return this.state.node.inputs.map(
       ( input, index ) => {
-        return(
-          <Input
-          index = { index }
-          input = { input }
-          key = {`node_input--${index}`}
-          />
-        )
+        if( !input.hidden ){
+          return(
+            <Input
+            index = { index }
+            input = { input }
+            key = {`node_input--${index}`}
+            />
+          )
+        }
       }
     )
   }
@@ -80,10 +94,15 @@ class Node extends React.Component{
     this.state.node.update();
   }
 
+  clickNode(){
+    window.clickNode( this.state.node )
+  }
+
   render(){
     return(
       <div
-      className = "node"
+      className = { this.getClassName() }
+      onClick = { this.clickNode.bind( this ) }
       style = {this.getStyle()}
       onDragStart = {
         ( e ) => {

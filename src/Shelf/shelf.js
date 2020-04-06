@@ -1,110 +1,131 @@
 import React from "react";
-import Parameters from "./parameters.js"
-import NodeInterface from "./nodeInterface.js"
+import Parameters from "./parameters"
+import NodeInterface from "./nodeInterface"
 
 const DragUtil = require("../util/drag")
-const $ = require("jquery")
+const throttle = require("../util/throttle")
 
 class Shelf extends React.Component{
   constructor( props ){
     super();
     this.state = {
-      splitHeight: 50,
-      shelfWidth: 30,
-      nodes: props.nodes
+      nodes: props.nodes,
+      length: props.length,
+      index: props.index,
+      selected: props.selected,
+      type: props.type,
+      selectedNetwork: props.selectedNetwork
     }
   }
 
   componentWillReceiveProps( props ){
     this.setState({
-      nodes: props.nodes
+      index: props.index,
+      length: props.length,
+      selected: props.selected,
+      nodes: props.nodes,
+      type: props.type,
+      selectedNetwork: props.selectedNetwork
     })
   }
 
-  componentDidMount(){
-    this.getSplitHeight()
-    $( window ).on( "resize", this.getSplitHeight.bind( this ) )
+  inner(){
+    if( this.state.type === "Parameters" ){
+      return(
+        <Parameters
+        nodes = { this.state.nodes }
+        selected = { this.state.selected }
+        />
+      )
+    }else if( this.state.type === "NodeInterface" ){
+      return(
+        <NodeInterface
+        nodes = { this.state.nodes }
+        selected = { this.state.selected }
+        />
+      )
+    }
+
   }
 
-  getSplitHeight(){
-    this.setState({ splitHeight: 50 })
+  dragStart(){
+    let rect = this.refs.shelf.getBoundingClientRect();
+    this.setState({ init: rect })
   }
 
-
-
-  updateSplit(){
-    let rect = this.refs.shelfInner.getBoundingClientRect();
+  drag( e ){
+    console.log( this.state.init.height + this.state.diff.y );
     this.setState({
-      splitHeight: (this.state.drag.y / rect.height) * 100
+      height: `${this.state.init.height + this.state.diff.y}px`
     })
   }
 
+  dragEnd(){
 
-  getFirstStyle(){
-    if( this.refs.shelfInner ){
-      return({
-        height: `${ this.refs.shelfInner.offsetHeight * ( this.state.splitHeight / 100 ) - this.refs.verticalBorder.offsetHeight }px`
-      })
-    }
   }
 
-  getSecondStyle(){
-    if( this.refs.shelfInner ){
-      return({
-        height: `${ this.refs.shelfInner.offsetHeight - (this.refs.shelfInner.offsetHeight * ( this.state.splitHeight / 100 )) }px`
-      })
+  border(){
+    if( this.state.index !== this.state.length - 1 ){
+      return(
+        <div className = "shelf__border shelf__border--vertical"
+          onDragStart = {
+            ( e ) => {
+              DragUtil.dragStart.bind( this )( e, this.dragStart.bind( this ) )
+            }
+          }
+          onDrag = {
+            ( e ) => {
+              throttle(
+                () => {
+                  DragUtil.drag.bind( this )( e, this.drag.bind( this ) )
+                },
+                100
+              )()
+            }
+          }
+          draggable = "true"
+        ></div>
+      )
     }
-  }
-
-  updateWidth(){
-    let width = (1 - (this.state.drag.x / window.innerWidth)) * 100;
-    this.setState({ shelfWidth: width })
   }
 
   getStyle(){
-    let width = window.innerWidth * ( this.state.shelfWidth / 100 )
-    return({
-      width: `${width}px`,
-      left: `${window.innerWidth - width}px`
-    })
+    if( this.state.height ){
+      return({
+        height: `${ this.state.height }`
+      })
+    }
+  }
+
+  getClassName(){
+    if( this.state.index === this.state.length - 1 ){
+      return "inner__shelf inner__shelf--last"
+    }else{
+      return "inner__shelf"
+    }
+  }
+
+  breadcrumbs(){
+    if( this.state.selectedNetwork ){
+
+    }
   }
 
   render(){
     return(
-      <div className = "shelf" style = { this.getStyle() }>
-        <div className = "item" ref = "shelfInner">
-          <div className = "vertical-half" style = { this.getFirstStyle() }>
-            <Parameters/>
-          </div>
-          <div
-            ref = "verticalBorder"
-            className = "shelf__border shelf__border--vertical"
-            draggable = "true"
-            onDragStart = { DragUtil.dragStart.bind( this ) }
-            onDrag = {
-              function( e ){
-                DragUtil.drag.bind( this )( e, this.updateSplit.bind( this ) )
-              }.bind( this )
-            }
-          ></div>
-          <div className = "vertical-half" style = { this.getSecondStyle() }>
-            <NodeInterface nodes = { this.state.nodes }/>
-          </div>
-          <div
-          className = "shelf__border shelf__border--horizontal"
-          draggable = "true"
-          onDragStart = { DragUtil.dragStart.bind( this ) }
-          onDrag = {
-            function( e ){
-              DragUtil.drag.bind( this )( e, this.updateWidth.bind( this ) )
-            }.bind( this )
-          }
-          ></div>
-        </div>
-
+      <div className = { this.getClassName() } ref = "shelf" style = { this.getStyle() }>
+        {
+          this.breadcrumbs()
+        }
+        {
+          this.inner()
+        }
+        {
+          this.border()
+        }
       </div>
     )
   }
 }
 
-export default Shelf;
+export default Shelf

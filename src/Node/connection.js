@@ -10,14 +10,21 @@ class Connection extends Component {
       diff: { x: 0, y: 0 }
     }
     window.setTimeout( this.getDiff.bind( this ), 40 );
-    this.state.input.parent.addListener( "updateCoords", this.__update.bind( this ) );
-    this.state.output.parent.addListener( "updateCoords", this.__update.bind( this ) );
+    this.inputListener = this.state.input.parent.addListener( "updateCoords", this.__update.bind( this ) );
+    this.outputListener = this.state.output.parent.addListener( "updateCoords", this.__update.bind( this ) );
   }
 
+  componentWillReceiveProps(){
+
+  }
+
+  componentWillUnmount(){
+    this.state.input.parent.removeListener( "updateCoords", this.inputListener )
+    this.state.output.parent.removeListener( "updateCoords", this.outputListener )
+  }
 
   __update(){
-    let diff = this.getDiff();
-    this.setState({ update: !this.state.update });
+    this.getDiff();
   }
 
   getLeft( div ){
@@ -44,6 +51,7 @@ class Connection extends Component {
       y: this.getTop( inp ) - this.getTop( out )
     }
     this.setState({ diff: diff })
+    return diff
   }
 
   getD(){

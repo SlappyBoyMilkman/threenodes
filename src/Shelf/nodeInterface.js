@@ -5,12 +5,13 @@ class NodeInterface extends React.Component{
   constructor( props ){
     super();
     this.state = {
-      nodes: props.nodes
+      nodes: props.nodes,
+      selected: props.selected
     }
   }
 
   componentWillReceiveProps( props ){
-    this.setState({ nodes: props.nodes })
+    this.setState({ nodes: props.nodes, selected: props.selected })
   }
 
   mapNodes(){
@@ -18,9 +19,13 @@ class NodeInterface extends React.Component{
     return nodes.map(
       function( node, index ){
         return(
-          <Node node = {node} key = {`node--${index}`}/>
+          <Node
+            node = {node}
+            key = {`node--${index}`}
+            selected = { this.state.selected }
+          />
         )
-      }
+      }.bind( this )
     );
   }
 

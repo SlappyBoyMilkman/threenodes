@@ -1,22 +1,19 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
-.index{
-
+@font-face {
+  font-family: "Graphik";
+  src: url("graphik.otf");
 }
-
-.shelf{
+.shelf {
   position: absolute;
   left: 70vw;
   top: 0px;
@@ -24,9 +21,11 @@ code {
   padding: 10px;
   box-sizing: border-box;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.parameters{
+.parameters {
   position: absolute;
   top: 0px;
   width: 100%;
@@ -34,7 +33,7 @@ code {
   background-color: blue;
 }
 
-.position-full{
+.position-full {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -42,16 +41,16 @@ code {
   height: 100%;
 }
 
-.shelf__border{
+.shelf__border {
   background-color: #ededed;
 }
 
-.shelf__border.shelf__border--vertical{
+.shelf__border.shelf__border--vertical {
   height: 10px;
   width: 100%;
 }
 
-.shelf__border.shelf__border--horizontal{
+.shelf__border.shelf__border--horizontal {
   width: 10px;
   height: 100%;
   position: absolute;
@@ -59,40 +58,51 @@ code {
   top: 0px;
 }
 
-.node-interface{
+.node-interface {
   background-color: purple;
 }
 
-.vertical-half{
+.vertical-half {
   width: 100%;
   position: relative;
 }
 
-
-.node{
+.node {
   position: absolute;
   width: 80px;
   height: 30px;
   background-color: #ededed;
   border: 1px solid black;
 }
+.node.node--selected:after {
+  position: absolute;
+  content: "";
+  width: 101%;
+  height: 101%;
+  border: 4px solid red;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
 
-.node__input{
+.node__input {
   position: absolute;
   bottom: 100%;
   width: 12px;
   background-color: red;
   height: 8px;
 }
+.node__input.node__input--mixed {
+  width: 100%;
+}
 
-.node__output{
+.node__output {
   position: absolute;
   top: 100%;
   width: 12px;
   background-color: black;
   height: 8px;
 }
-
 
 svg.connection {
   position: absolute;
@@ -103,7 +113,7 @@ svg.connection {
   top: -200px;
 }
 
-.node__name{
+.node__name {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -111,10 +121,10 @@ svg.connection {
   text-align: center;
   font-size: 12px;
   overflow: hidden;
-  transform: translate( -50%, -50% );
+  transform: translate(-50%, -50%);
 }
 
-.output__hover{
+.output__hover {
   position: absolute;
   top: 5px;
   left: 120%;
@@ -124,3 +134,81 @@ svg.connection {
   padding: 4px;
   background-color: #ededed;
 }
+
+.shelf {
+  background-color: red;
+}
+
+.shelf__head {
+  width: 100%;
+  background-color: #ededed;
+}
+.shelf__head ul {
+  padding: 0px;
+  margin: 0px;
+}
+.shelf__head li {
+  list-style: none;
+}
+
+.shelf__tab {
+  padding: 5px;
+  min-width: 80px;
+  font-size: 12px;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+.shelf__tab.shelf__tab--clicked .shelf__tab__dropdown {
+  opacity: 1;
+  pointer-events: painted;
+  z-index: 100;
+  background-color: #ededed;
+  background-color: #323232;
+}
+
+.shelf__tab__dropdown {
+  top: 100%;
+  position: absolute;
+  color: white;
+  left: 0px;
+  padding: 10px 5px !important;
+  opacity: 0;
+  pointer-events: hidden;
+}
+.shelf__tab__dropdown li {
+  margin-bottom: 5px;
+}
+.shelf__tab__dropdown li:hover {
+  color: black;
+  cursor: pointer;
+  background-color: #ededed;
+}
+
+.shelf__head {
+  flex-grow: 0;
+}
+
+.shelf__body {
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.inner__shelf {
+  width: 100%;
+  min-height: 50px;
+  height: 200px;
+  position: relative;
+}
+.inner__shelf.inner__shelf--last {
+  flex-grow: 1;
+}
+
+.shelf__border--vertical {
+  position: absolute;
+  bottom: 0%;
+}
+
+/*# sourceMappingURL=index.css.map */

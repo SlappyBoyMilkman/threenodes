@@ -35,7 +35,15 @@ class Output extends Connection{
 
     this.connections = connections
     this.parent.update();
+  }
 
+  getConnectedNodes( list ){
+    this.connections.forEach(
+      ( connection ) => {
+        let node = connection.parent;
+        list.push( node )
+      }
+    );
   }
 
   getUniqueId(){

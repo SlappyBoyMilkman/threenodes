@@ -24,6 +24,8 @@ class Output extends React.Component{
     this.state.output.assignRef( this.refs.output )
   }
 
+
+
   getStyle(){
     return({
       left: `${this.state.index * 15}px`
